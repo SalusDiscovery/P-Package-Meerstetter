@@ -9,7 +9,7 @@ description = "Python driver and convenience interface for Meerstetter TEC contr
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "pyMeCom @ git+https://github.com/meerstetter/pyMeCom.git@master",
+    "mecom @ git+https://github.com/meerstetter/pyMeCom.git@master",
     "pyserial>=3.5",
 ]
 
