@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "meerstetter"
+dynamic = ["version"]
+description = "Python driver and convenience interface for Meerstetter TEC controllers over official pyMeCom"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "pyMeCom @ git+https://github.com/meerstetter/pyMeCom.git@master",
+    "pyserial>=3.5",
+]
+
+[tool.setuptools_scm]
+version_scheme = "guess-next-dev"
+local_scheme = "node-and-date"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
