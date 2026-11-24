@@ -30,10 +30,12 @@ class MeerstetterTEC:
         timeout: float = 1.0,
         auto_connect: bool = True,
         channel: int = 1,
+        address: int = 0,
     ):
         self.baudrate = baudrate
         self.timeout = timeout
         self.channel = channel
+        self.address = address
         self.port: str | None = port
         self.session: MeComSerial | None = None
 
@@ -89,7 +91,7 @@ class MeerstetterTEC:
             # Ensure default Independent / Single operating mode (Parameter 2040 = 0)
             try:
                 self._respect_guard_time()
-                self.session.set_parameter(value=0, parameter_id=2040, address=1, channel=1)
+                self.session.set_parameter(value=0, parameter_id=2040, address=self.address, parameter_instance=1)
             except Exception:
                 pass
 
@@ -205,7 +207,7 @@ class MeerstetterTEC:
             try:
                 self._respect_guard_time()
                 if self.session is not None:
-                    self.session.set_parameter(value=1, parameter_id=50000, address=1, channel=1)
+                    self.session.set_parameter(value=1, parameter_id=50000, address=self.address, parameter_instance=1)
             except Exception:
                 pass
             time.sleep(0.50)  # Settle time for controller reboot
@@ -222,11 +224,12 @@ class MeerstetterTEC:
         self,
         parameter_id: int | str,
         channel: int = 1,
-        address: int = 1,
+        address: int | None = None,
         *args: Any,
         **kwargs: Any,
     ) -> Any:
         """Thread-safe, timing-guarded read of any MeCom parameter register."""
+        addr = self.address if address is None else address
         with self._lock:
             if self.session is None:
                 raise SerialException("MeerstetterTEC is not connected")
@@ -235,16 +238,16 @@ class MeerstetterTEC:
                 if isinstance(parameter_id, int):
                     return self.session.get_parameter(
                         parameter_id=parameter_id,
-                        address=address,
-                        channel=channel,
+                        address=addr,
+                        parameter_instance=channel,
                         *args,
                         **kwargs,
                     )
                 else:
                     return self.session.get_parameter(
                         parameter_name=parameter_id,
-                        address=address,
-                        channel=channel,
+                        address=addr,
+                        parameter_instance=channel,
                         *args,
                         **kwargs,
                     )
@@ -256,11 +259,12 @@ class MeerstetterTEC:
         value: Any,
         parameter_id: int | str,
         channel: int = 1,
-        address: int = 1,
+        address: int | None = None,
         *args: Any,
         **kwargs: Any,
     ) -> bool:
         """Thread-safe, timing-guarded write to any MeCom parameter register."""
+        addr = self.address if address is None else address
         with self._lock:
             if self.session is None:
                 raise SerialException("MeerstetterTEC is not connected")
@@ -271,8 +275,8 @@ class MeerstetterTEC:
                         self.session.set_parameter(
                             value=value,
                             parameter_id=parameter_id,
-                            address=address,
-                            channel=channel,
+                            address=addr,
+                            parameter_instance=channel,
                             *args,
                             **kwargs,
                         )
@@ -282,8 +286,8 @@ class MeerstetterTEC:
                         self.session.set_parameter(
                             value=value,
                             parameter_name=parameter_id,
-                            address=address,
-                            channel=channel,
+                            address=addr,
+                            parameter_instance=channel,
                             *args,
                             **kwargs,
                         )
